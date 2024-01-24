@@ -1,22 +1,21 @@
-import sqlite3
+import mysql.connector
 
 import click
 from flask import current_app
 from flask import g
-
+import pdb
 
 def get_db():
     """Connect to the application's configured database. The connection
     is unique for each request and will be reused if this is called
     again.
     """
-    if "db" not in g:
-        g.db = sqlite3.connect(
-            current_app.config["DATABASE"], detect_types=sqlite3.PARSE_DECLTYPES
+    mydb = mysql.connector.connect(
+            host="10.3.94.3", user='flask', password='soopersecret', database='flask'
         )
-        g.db.row_factory = sqlite3.Row
-
-    return g.db
+    print("Connected db:")
+    
+    return mydb
 
 
 def close_db(e=None):
@@ -32,10 +31,22 @@ def close_db(e=None):
 def init_db():
     """Clear existing data and create new tables."""
     db = get_db()
+    cursor = db.cursor()
 
     with current_app.open_resource("schema.sql") as f:
-        db.executescript(f.read().decode("utf8"))
+        sqlscript = f.read().decode("utf8")
+        result = cursor.execute(sqlscript, multi=True)
+        #pdb.set_trace()
+        print("completed script")
+        for r in result:
+            print(r)
+    print("Check:")
+    checkresults = cursor.execute('SELECT title from post LIMIT 1;')
+    if (checkresults):
+        for r in checkresults.fetchall():
+            print(r)
 
+    
 
 @click.command("init-db")
 def init_db_command():
