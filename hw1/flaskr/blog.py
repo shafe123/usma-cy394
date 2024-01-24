@@ -9,6 +9,7 @@ from werkzeug.exceptions import abort
 
 from flaskr.auth import login_required
 from flaskr.db import get_db
+import pdb
 
 bp = Blueprint("blog", __name__)
 
@@ -17,11 +18,17 @@ bp = Blueprint("blog", __name__)
 def index():
     """Show all the posts, most recent first."""
     db = get_db()
-    posts = db.execute(
+    cursor = db.cursor(named_tuple=True)
+    print(cursor)
+    
+    cursor.execute(
         "SELECT p.id, title, body, created, author_id, username"
         " FROM post p JOIN user u ON p.author_id = u.id"
-        " ORDER BY created DESC"
-    ).fetchall()
+        " ORDER BY created DESC;"
+    )
+    #pdb.set_trace()
+    #print(posts.fetchall())
+    posts = cursor.fetchall()
     return render_template("blog/index.html", posts=posts)
 
 
@@ -37,8 +44,10 @@ def get_post(id, check_author=True):
     :raise 404: if a post with the given id doesn't exist
     :raise 403: if the current user isn't the author
     """
+    db = get_db()
+    cursor = db.cursor(named_tuple=True)
     post = (
-        get_db()
+        cursor
         .execute(
             "SELECT p.id, title, body, created, author_id, username"
             " FROM post p JOIN user u ON p.author_id = u.id"
@@ -73,11 +82,12 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            cursor = db.cursor()
+            cursor.execute(
                 "INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)",
                 (title, body, g.user["id"]),
             )
-            db.commit()
+            cursor.commit()
             return redirect(url_for("blog.index"))
 
     return render_template("blog/create.html")
@@ -101,10 +111,11 @@ def update(id):
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            cursor = db.cursor()
+            cursor.execute(
                 "UPDATE post SET title = ?, body = ? WHERE id = ?", (title, body, id)
             )
-            db.commit()
+            cursor.commit()
             return redirect(url_for("blog.index"))
 
     return render_template("blog/update.html", post=post)
@@ -120,6 +131,7 @@ def delete(id):
     """
     get_post(id)
     db = get_db()
-    db.execute("DELETE FROM post WHERE id = ?", (id,))
-    db.commit()
+    cursor = db.cursor()
+    cursor.execute("DELETE FROM post WHERE id = ?", (id,))
+    cursor.commit()
     return redirect(url_for("blog.index"))
