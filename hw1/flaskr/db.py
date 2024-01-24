@@ -35,16 +35,17 @@ def init_db():
 
     with current_app.open_resource("schema.sql") as f:
         sqlscript = f.read().decode("utf8")
+        print(f"executing {sqlscript}")
         result = cursor.execute(sqlscript, multi=True)
         #pdb.set_trace()
         print("completed script")
         for r in result:
             print(r)
+    
     print("Check:")
     checkresults = cursor.execute('SELECT title from post LIMIT 1;')
-    if (checkresults):
-        for r in checkresults.fetchall():
-            print(r)
+    for r in cursor.fetchall():
+        print(r)
 
     
 
