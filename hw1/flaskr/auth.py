@@ -36,17 +36,16 @@ def load_logged_in_user():
     the database into ``g.user``."""
     user_id = session.get("user_id")
     db = get_db()
-    cursor = db.cursor()
+    cursor = db.cursor(named_tuple=True)
     
     #u = cursor.fetchone()
-    pdb.set_trace()
+    
     if user_id is None:
         g.user = None
     else:
         #pdb.set_trace()
-        g.user = (
-            cursor.execute("SELECT * FROM user WHERE id = %u", u.id)
-        )
+        cursor.execute("SELECT * FROM user WHERE id = " +  str(user_id))
+        g.user = cursor.fetchone()
 
 
 @bp.route("/register", methods=("GET", "POST"))
@@ -103,7 +102,6 @@ def login():
             "SELECT * FROM user WHERE username = %s", (username,)
         )
         user = cursor.fetchone()
-        pdb.set_trace()
         if user is None:
             error = "Incorrect username."
         elif not check_password_hash(user.password, password):
