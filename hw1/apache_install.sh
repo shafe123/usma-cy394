@@ -18,4 +18,5 @@ echo "<VirtualHost *:80>
     Require host localhost
 </Location>" | sudo tee -a /etc/apache2/sites-available/flask.conf
 sudo ln -s /etc/apache2/sites-available/flask.conf /etc/apache2/sites-enabled/flask.conf
+sudo rm /etc/apache2/sites-enabled/000-default.conf
 sudo systemctl restart apache2

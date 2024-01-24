@@ -1,9 +1,7 @@
 import mysql.connector
-
 import click
 from flask import current_app
 from flask import g
-import pdb
 
 def get_db():
     """Connect to the application's configured database. The connection
@@ -11,7 +9,7 @@ def get_db():
     again.
     """
     mydb = mysql.connector.connect(
-            host="10.3.94.3", user='flask', password='soopersecret', database='flask'
+            host="10.3.94.3", user='flaskapp', password='soopersecret', database='flaskdb'
         )
     print("Connected db:")
     
