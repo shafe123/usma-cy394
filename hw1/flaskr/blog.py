@@ -84,10 +84,10 @@ def create():
             db = get_db()
             cursor = db.cursor()
             cursor.execute(
-                "INSERT INTO post (title, body, author_id) VALUES (?, ?, ?)",
-                (title, body, g.user["id"]),
+                "INSERT INTO post (title, body, author_id) VALUES (%s, %s, %s)",
+                (title, body, g.user.id),
             )
-            cursor.commit()
+            db.commit()
             return redirect(url_for("blog.index"))
 
     return render_template("blog/create.html")
