@@ -44,7 +44,7 @@ def load_logged_in_user():
         g.user = None
     else:
         #pdb.set_trace()
-        cursor.execute("SELECT * FROM user WHERE id = " +  str(user_id))
+        cursor.execute("SELECT * FROM user WHERE id = %s", (user_id, ))
         g.user = cursor.fetchone()
 
 
